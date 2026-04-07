@@ -1,3 +1,7 @@
 spring:
   application:
     name: weather-history-api
+
+logging:
+  level:
+    root: info
