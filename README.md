@@ -57,7 +57,7 @@ SpringBoot 4.0.4
 ```
 * Request from localhost
 ```sh
-curl "http://localhost:8080/weather/USA/TN/Chattanooga?fromDate=1993-03-01&toDate=1993-03-31" -H "token:0987654321"
+curl -X 'GET' 'http://localhost:8080/weather/USA/TN/Chattanooga?fromDate=1993-03-01&toDate=1993-03-31' -H 'Authorization: Bearer 0987654321'
 ```
 
 <!-- Running Tests -->

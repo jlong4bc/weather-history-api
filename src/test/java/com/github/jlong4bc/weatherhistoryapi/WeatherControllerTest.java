@@ -39,6 +39,9 @@ class WeatherControllerTest
 
     @ParameterizedTest
     @CsvSource(value={
+            "USA,TN,Chattanooga,1993-03-13,1993-03-13,-7,-17,Celsius,300,centimeter,snow,1993-03-13,0987654321",
+            "USA,TN,Chattanooga,null,1993-03-13,-7,-17,Celsius,300,centimeter,snow,1993-03-13,0987654321",
+            "USA,TN,Chattanooga,1993-03-13,null,-7,-17,Celsius,300,centimeter,snow,1993-03-13,0987654321",
             "USA,TN,Chattanooga,null,null,-7,-17,Celsius,300,centimeter,snow,1993-03-13,0987654321",
     }, nullValues = {"null"})
     void test_retrieveWeatherHistory(String country, String stateProvince, String city,

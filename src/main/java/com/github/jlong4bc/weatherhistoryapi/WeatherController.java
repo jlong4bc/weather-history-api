@@ -35,10 +35,13 @@ public class WeatherController
     public ResponseEntity<WeatherHistory> retrieveWeatherHistory(@PathVariable String country,
                                                     @PathVariable("state-province") String stateProvince,
                                                     @PathVariable String city,
-                                                    @RequestParam Optional<String> fromDate,
-                                                    @RequestParam Optional<String> toDate,
+                                                    @RequestParam(required = false) String fromDate,
+                                                    @RequestParam(required = false) String toDate,
                                                                  HttpServletRequest request)
     {
+        Optional<String> fromDateOpt = Optional.ofNullable(fromDate);
+        Optional<String> toDateOpt = Optional.ofNullable(toDate);
+
         // There may be a more elegant way to retrieve the bearer token, but this is A way.
         String token = request.getHeader(HttpHeaders.AUTHORIZATION);
 
@@ -46,7 +49,7 @@ public class WeatherController
         token = token.replace("Bearer ", "");
 
         log.info("country: {}, state-province: {}, city: {}, fromDate: {}, toDate: {}, token: {}",
-                country, stateProvince, city, fromDate, toDate, token);
+                country, stateProvince, city, fromDateOpt.orElse("-"), toDateOpt.orElse("-"), token);
 
         WeatherHistory wHistory = service.retrieveWeatherHistory();
 
