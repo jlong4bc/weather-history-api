@@ -85,3 +85,5 @@ curl "http://localhost:8080/weather/USA/TN/Chattanooga?fromDate=1993-03-01&toDat
 * [OWASP - Input Validation Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html)
 * [GeeksForGeeks - RegEx in Java](https://www.geeksforgeeks.org/java/regular-expressions-in-java/)
 * [Baeldung - Regular Expression Java](https://www.baeldung.com/regular-expressions-java)
+* [Bhanu's Blog - Authentication Bearer Token](https://blog.bhanunadar.com/setting-up-swagger-with-jwt-authentication-in-spring-boot/)
+* [Baeldung - Authentication Bearer Token](https://www.baeldung.com/openapi-jwt-authentication)
