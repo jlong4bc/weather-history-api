@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 public class WeatherService
 {
 
-    public WeatherHistory retrieveWeatherHistory()
+    public WeatherHistory retrieveWeatherHistory(InputData inputData)
     {
 //        Precipitation precip = new Precipitation(0, PrecipitationUoM.CENTIMETER, PrecipitationType.RAIN);
 //        Temperature temp = new Temperature(80, 60, TemperatureUoM.CELSIUS);

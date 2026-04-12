@@ -87,3 +87,4 @@ curl -X 'GET' 'http://localhost:8080/weather/USA/TN/Chattanooga?fromDate=1993-03
 * [Baeldung - Regular Expression Java](https://www.baeldung.com/regular-expressions-java)
 * [Bhanu's Blog - Authentication Bearer Token](https://blog.bhanunadar.com/setting-up-swagger-with-jwt-authentication-in-spring-boot/)
 * [Baeldung - Authentication Bearer Token](https://www.baeldung.com/openapi-jwt-authentication)
+* [Java's Enum.valueOf() Method Explained](https://medium.com/@AlexanderObregon/javas-enum-valueof-method-explained-9e686f7c806a)

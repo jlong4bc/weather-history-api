@@ -1,27 +1,23 @@
 package com.github.jlong4bc.weatherhistoryapi;
 
-import com.github.jlong4bc.weatherhistoryapi.exception.CountryNotFoundException;
-import com.github.jlong4bc.weatherhistoryapi.exception.InvalidCityException;
-import com.github.jlong4bc.weatherhistoryapi.exception.InvalidDateException;
-import com.github.jlong4bc.weatherhistoryapi.exception.StateProvinceNotFoundException;
-import org.junit.jupiter.api.BeforeEach;
+import com.github.jlong4bc.weatherhistoryapi.exception.*;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Provides unit test coverage for the InputValidation class
  */
+@Slf4j
 public class InputValidationTest
 {
-    private InputValidation inputValidation;
-
-    @BeforeEach
-    void setUp() {
-        inputValidation = new InputValidation();
-    }
-
     @ParameterizedTest
     @CsvSource(value = {
             "USA,true",
@@ -34,10 +30,10 @@ public class InputValidationTest
     void test_validateCountry(String countryName, boolean isLegit)
     {
         if (isLegit) {
-            assertDoesNotThrow(() -> inputValidation.validateCountry(countryName));
+            assertDoesNotThrow(() -> InputValidation.validateCountry(countryName));
         } else {
             assertThrows(CountryNotFoundException.class,
-                    () -> inputValidation.validateCountry(countryName));
+                    () -> InputValidation.validateCountry(countryName));
         }
     }
 
@@ -48,15 +44,18 @@ public class InputValidationTest
             "Tennessee,true",
             "Mars,false",
             "null,false",
-            ",false"
+            ",false",
+            "GA,true",
+            "TN,true",
+            "CA,false"
     })
     void test_validateStateProvince(String stateProvinceName, boolean isLegit)
     {
-        if (!isLegit) {
-            assertDoesNotThrow(() -> inputValidation.validateStateProvince(stateProvinceName));
+        if (isLegit) {
+            assertDoesNotThrow(() -> InputValidation.validateStateProvince(stateProvinceName));
         } else {
             assertThrows(StateProvinceNotFoundException.class,
-                    () -> inputValidation.validateStateProvince(stateProvinceName));
+                    () -> InputValidation.validateStateProvince(stateProvinceName));
         }
     }
 
@@ -74,10 +73,10 @@ public class InputValidationTest
     void test_validateCity(String cityName, boolean isLegit)
     {
         if (isLegit) {
-            assertDoesNotThrow(() -> inputValidation.validateCity(cityName));
+            assertDoesNotThrow(() -> InputValidation.validateCity(cityName));
         } else {
             assertThrows(InvalidCityException.class,
-                    () -> inputValidation.validateCity(cityName));
+                    () -> InputValidation.validateCity(cityName));
         }
     }
 
@@ -94,11 +93,35 @@ public class InputValidationTest
     void test_validateDateString(String dateString, boolean isLegit)
     {
         if (isLegit) {
-            assertDoesNotThrow(() -> inputValidation.validateIso8601Date(dateString));
+            assertDoesNotThrow(() -> InputValidation.validateIso8601Date(dateString));
         } else {
             assertThrows(InvalidDateException.class,
-                    () -> inputValidation.validateIso8601Date(dateString));
+                    () -> InputValidation.validateIso8601Date(dateString));
         }
     }
 
+    // Validates the date range limit of date input
+    @ParameterizedTest
+    @CsvSource(value = {
+            "1993-01-01,1993-01-04,true",
+            "2022-04-20,2022-04-25,true",
+            "2026-03-14,2026-03-20,false",
+            "2020-07-01,2020-06-30,false",
+            "2026-04-09,2026-04-09,true",
+            "null,2026-04-09,false",
+            "2026-04-09,null,false",
+            "null,null,true"
+    }, nullValues = "null")
+    void test_validateDateRange(String fromDateStr, String toDateStr, boolean isLegit)
+    {
+        LocalDate fromDate = StringUtils.isEmpty(fromDateStr) ? null : LocalDate.parse(fromDateStr, DateTimeFormatter.ISO_DATE);
+        LocalDate toDate = StringUtils.isEmpty(toDateStr) ? null : LocalDate.parse(toDateStr, DateTimeFormatter.ISO_DATE);
+
+        if (isLegit) {
+            assertDoesNotThrow(() -> InputValidation.validateDateRange(fromDate, toDate));
+        } else {
+            assertThrows(DateRangeException.class,
+                    () -> InputValidation.validateDateRange(fromDate, toDate));
+        }
+    }
 }

@@ -5,3 +5,9 @@ spring:
 logging:
   level:
     root: info
+
+springdoc:
+  swagger-ui:
+    path: /
+  api-docs:
+    path: api-docs
