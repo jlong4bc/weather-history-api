@@ -1,18 +1,10 @@
 package com.github.jlong4bc.weatherhistoryapi.elements;
 
-/*
- * Name:        Jason Long
- * Class:       CS 5040/Section#W01
- * Term:        Fall 2025
- * Instructor:  Umama Tasnim
- * Assignment:
- * IDE:         IntelliJ
- */
 
 import lombok.Getter;
 
 /**
- *
+ * Identifies the type of precipitation for a weather event.
  */
 @Getter
 public enum PrecipitationType
@@ -22,16 +14,16 @@ public enum PrecipitationType
     RAIN("rain"),
     HAIL("hail");
 
-    private final String name;
+    private final String description;
 
     PrecipitationType(String name) {
-        this.name = name;
+        this.description = name;
     }
 
     public static PrecipitationType of(String name)
     {
         for (PrecipitationType precip : PrecipitationType.values()) {
-            if (precip.getName().equals(name)) {
+            if (precip.getDescription().equals(name)) {
                 return precip;
             }
         }

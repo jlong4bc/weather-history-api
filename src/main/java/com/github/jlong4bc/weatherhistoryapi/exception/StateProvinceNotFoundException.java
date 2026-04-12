@@ -5,5 +5,7 @@ package com.github.jlong4bc.weatherhistoryapi.exception;
  */
 public class StateProvinceNotFoundException extends RuntimeException
 {
-    public StateProvinceNotFoundException() {}
+    public StateProvinceNotFoundException() {
+        super();
+    }
 }

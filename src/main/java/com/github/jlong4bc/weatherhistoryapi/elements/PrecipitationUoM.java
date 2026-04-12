@@ -3,7 +3,7 @@ package com.github.jlong4bc.weatherhistoryapi.elements;
 import lombok.Getter;
 
 /**
- *
+ * Specifies the unit of measure for the precipitation.
  */
 @Getter
 public enum PrecipitationUoM
@@ -13,16 +13,16 @@ public enum PrecipitationUoM
     FEET("feet"),
     INCH("inch");
 
-    public final String name;
+    public final String description;
 
-    PrecipitationUoM(String name) {
-        this.name = name;
+    PrecipitationUoM(String description) {
+        this.description = description;
     }
 
     public static PrecipitationUoM of(String name)
     {
         for (PrecipitationUoM uom : PrecipitationUoM.values()) {
-            if (uom.getName().equals(name)) {
+            if (uom.getDescription().equals(name)) {
                 return uom;
             }
         }

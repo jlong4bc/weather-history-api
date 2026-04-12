@@ -88,3 +88,4 @@ curl -X 'GET' 'http://localhost:8080/weather/USA/TN/Chattanooga?fromDate=1993-03
 * [Bhanu's Blog - Authentication Bearer Token](https://blog.bhanunadar.com/setting-up-swagger-with-jwt-authentication-in-spring-boot/)
 * [Baeldung - Authentication Bearer Token](https://www.baeldung.com/openapi-jwt-authentication)
 * [Java's Enum.valueOf() Method Explained](https://medium.com/@AlexanderObregon/javas-enum-valueof-method-explained-9e686f7c806a)
+* [Using Junit5 Parameterized Test with @NullSource, @EmptySource, and @ValueSource](https://sngermiyanoglu.medium.com/using-junit-5-parameterized-tests-with-nullsource-emptysource-and-valuesource-bd58ba17823e)

@@ -9,5 +9,5 @@ logging:
 springdoc:
   swagger-ui:
     path: /
-  api-docs:
-    path: api-docs
+#  api-docs:
+#    path: api-docs

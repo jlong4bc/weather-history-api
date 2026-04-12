@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -16,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Provides unit test coverage for the InputValidation class
  */
 @Slf4j
-public class InputValidationTest
+class InputValidationTest
 {
     @ParameterizedTest
     @CsvSource(value = {
@@ -122,6 +123,21 @@ public class InputValidationTest
         } else {
             assertThrows(DateRangeException.class,
                     () -> InputValidation.validateDateRange(fromDate, toDate));
+        }
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    @CsvSource(value = {
+            "YsvebxHrDtoeMBTAJrPTkzOpFbOoZYHc"
+    })
+    void test_validateTokenExists(String token)
+    {
+        if (StringUtils.isEmpty(token)) {
+            assertThrows(TokenNotFoundException.class,
+                    () -> InputValidation.validateTokenExists(token));
+        } else {
+            assertDoesNotThrow(() -> InputValidation.validateTokenExists(token));
         }
     }
 }

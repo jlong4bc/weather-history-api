@@ -3,7 +3,7 @@ package com.github.jlong4bc.weatherhistoryapi.elements;
 import lombok.Getter;
 
 /**
- *
+ * Specifies the unit of measure for the temperature.
  */
 @Getter
 public enum TemperatureUoM
@@ -11,16 +11,16 @@ public enum TemperatureUoM
     CELSIUS("Celsius"),
     FAHRENHEIT("Fahrenheit");
 
-    private final String name;
+    private final String description;
 
     TemperatureUoM(String name) {
-        this.name = name;
+        this.description = name;
     }
 
     public static TemperatureUoM of(String name)
     {
         for (TemperatureUoM uom : TemperatureUoM.values()) {
-            if (uom.getName().equals(name)) {
+            if (uom.getDescription().equals(name)) {
                 return uom;
             }
         }

@@ -24,7 +24,7 @@ public class WeatherController
     private final WeatherService service;
 
     /**
-     * Defines the main endpoint for weather history
+     * Defines the main endpoint for weather history API
      * @param country allowed as input but initially only works for USA
      * @param stateProvince identifies as the state / province within the country for weather history
      * @param city identifies the city of requested weather history
@@ -59,10 +59,13 @@ public class WeatherController
 
     private void validateInput(RawInputData rawInput)
     {
+        // Check for existing token first because it's easy to forget to include in a request.
+        InputValidation.validateTokenExists(rawInput.noaaToken());
         InputValidation.validateCity(rawInput.cityName());
         InputValidation.validateCountry(rawInput.countryName());
         InputValidation.validateStateProvince(rawInput.stateProvinceName());
 
+        // Create local variable because of reuse which reduces verbosity.
         String fromDateStr = rawInput.fromDateStr();
         String toDateStr = rawInput.toDateStr();
         if (fromDateStr != null) {
@@ -71,6 +74,8 @@ public class WeatherController
         if (toDateStr != null) {
             InputValidation.validateIso8601Date(toDateStr);
         }
+
+        // Change to actual date objects to validate date range rules.
         LocalDate fromDate = StringUtils.isEmpty(fromDateStr) ? null : LocalDate.parse(fromDateStr, DateTimeFormatter.ISO_DATE);
         LocalDate toDate = StringUtils.isEmpty(toDateStr) ? null : LocalDate.parse(toDateStr, DateTimeFormatter.ISO_DATE);
 
@@ -83,11 +88,13 @@ public class WeatherController
         StateProvince stateProvince = StateProvince.of(rawInput.stateProvinceName());
         String city = rawInput.cityName();
 
+        // Having to repeat code from the validation method here because the input transformation was kept separate.
         String fromDateStr = rawInput.fromDateStr();
         String toDateStr = rawInput.toDateStr();
         LocalDate fromDate = StringUtils.isEmpty(fromDateStr) ? null : LocalDate.parse(fromDateStr, DateTimeFormatter.ISO_DATE);
         LocalDate toDate = StringUtils.isEmpty(toDateStr) ? null : LocalDate.parse(toDateStr, DateTimeFormatter.ISO_DATE);
 
+        // Using a separate to improve readability - makes the return easier to read.
         String token = rawInput.noaaToken();
 
         return new InputData(country, stateProvince, city, fromDate, toDate, token);

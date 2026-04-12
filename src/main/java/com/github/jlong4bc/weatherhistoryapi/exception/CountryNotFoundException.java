@@ -5,5 +5,7 @@ package com.github.jlong4bc.weatherhistoryapi.exception;
  */
 public class CountryNotFoundException extends RuntimeException
 {
-    public CountryNotFoundException() {}
+    public CountryNotFoundException() {
+        super();
+    }
 }

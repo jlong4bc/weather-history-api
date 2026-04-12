@@ -14,11 +14,15 @@ import java.util.regex.Pattern;
  */
 public final class InputValidation
 {
-    // Focus on allowed characters like a space, apostrophe and "A" - "z";
-    // Allow no more than 25 characters in a city name which allows for most city names
-    private final static Pattern VALID_CITY_PATTERN = Pattern.compile("(\\s|'|-|[A-Z]|[a-z]){0,25}");
+    private InputValidation() {
+        // Private to prevent creation because all methods are static.
+    }
 
-    private final static int DAY_RANGE = 5;
+    // Focus on allowed characters like a space, apostrophe and "A" through "z";
+    // Allow no more than 25 characters in a city name which allows for most city names
+    private static final Pattern VALID_CITY_PATTERN = Pattern.compile("(\\s|'|-|[A-Z]|[a-z]){0,25}");
+
+    private static final int DAY_RANGE = 5;
 
 
     /**
@@ -46,7 +50,7 @@ public final class InputValidation
         // First, check for an abbreviation
         try {
             Enum.valueOf(StateProvince.class, stateProvinceAbbr);
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException _) {
             // Second, check for the actual name
             if (StateProvince.of(stateProvinceAbbr) == null) {
                 throw new StateProvinceNotFoundException();
@@ -77,7 +81,7 @@ public final class InputValidation
         // First, verify it's legit
         try {
             date = LocalDate.parse(dateString, DateTimeFormatter.ISO_DATE);
-        } catch (DateTimeParseException dte) {
+        } catch (DateTimeParseException _) {
             throw new InvalidDateException("Not a valid ISO 8601 date");
         }
 
@@ -116,6 +120,18 @@ public final class InputValidation
 
         if ((fromDate.plusDays(DAY_RANGE)).isBefore(toDate)) {
             throw new DateRangeException("No more than " + DAY_RANGE+ " days range is allowed.");
+        }
+    }
+
+    /**
+     * Provides a very rudimentary validation check because NOAA CDO does not provide specific how-tos
+     * for verifying proper token structure.
+     * @param token a NOAA CDO specific token
+     */
+    public static void validateTokenExists(String token)
+    {
+        if (StringUtils.isEmpty(token)) {
+            throw new TokenNotFoundException();
         }
     }
 }
