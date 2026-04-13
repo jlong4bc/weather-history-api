@@ -11,16 +11,18 @@ public enum StateProvince
     GA("Georgia"),
     TN("Tennessee");
 
-    private final String name;
+    private final String provinceName;
 
-    StateProvince(String name) {
-        this.name = name;
+    StateProvince(String provinceName) {
+        this.provinceName = provinceName;
     }
 
+    // Find the enum given its name
     public static StateProvince of(String name)
     {
+        // Forgive the user for improper case
         for (StateProvince sp : StateProvince.values()) {
-            if (sp.getName().equals(name)) {
+            if (sp.getProvinceName().equalsIgnoreCase(name)) {
                 return sp;
             }
         }

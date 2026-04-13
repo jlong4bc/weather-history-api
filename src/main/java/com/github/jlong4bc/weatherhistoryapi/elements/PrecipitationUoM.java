@@ -13,16 +13,16 @@ public enum PrecipitationUoM
     FEET("feet"),
     INCH("inch");
 
-    public final String description;
+    public final String unitName;
 
-    PrecipitationUoM(String description) {
-        this.description = description;
+    PrecipitationUoM(String unitName) {
+        this.unitName = unitName;
     }
 
     public static PrecipitationUoM of(String name)
     {
         for (PrecipitationUoM uom : PrecipitationUoM.values()) {
-            if (uom.getDescription().equals(name)) {
+            if (uom.getUnitName().equals(name)) {
                 return uom;
             }
         }

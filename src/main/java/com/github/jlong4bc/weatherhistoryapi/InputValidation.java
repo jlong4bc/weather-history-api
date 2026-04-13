@@ -31,6 +31,10 @@ public final class InputValidation
      */
     public static void validateCountry(String countryName)
     {
+        if (countryName == null) {
+            throw new CountryNotFoundException("Country must be specified.");
+        }
+
         // Only allow countries that can be processed.
         if (Country.of(countryName) == null) {
             throw new CountryNotFoundException();
@@ -44,7 +48,7 @@ public final class InputValidation
     public static void validateStateProvince(String stateProvinceAbbr)
     {
         if (StringUtils.isEmpty(stateProvinceAbbr)) {
-            throw new StateProvinceNotFoundException();
+            throw new StateProvinceNotFoundException("State / Province must be specified.");
         }
 
         // First, check for an abbreviation

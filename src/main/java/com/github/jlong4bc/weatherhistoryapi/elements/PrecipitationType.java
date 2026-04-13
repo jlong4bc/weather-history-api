@@ -14,16 +14,16 @@ public enum PrecipitationType
     RAIN("rain"),
     HAIL("hail");
 
-    private final String description;
+    private final String typeName;
 
     PrecipitationType(String name) {
-        this.description = name;
+        this.typeName = name;
     }
 
     public static PrecipitationType of(String name)
     {
         for (PrecipitationType precip : PrecipitationType.values()) {
-            if (precip.getDescription().equals(name)) {
+            if (precip.getTypeName().equals(name)) {
                 return precip;
             }
         }

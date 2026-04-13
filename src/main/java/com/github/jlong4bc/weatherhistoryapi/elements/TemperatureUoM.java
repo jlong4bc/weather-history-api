@@ -11,16 +11,16 @@ public enum TemperatureUoM
     CELSIUS("Celsius"),
     FAHRENHEIT("Fahrenheit");
 
-    private final String description;
+    private final String unitName;
 
     TemperatureUoM(String name) {
-        this.description = name;
+        this.unitName = name;
     }
 
     public static TemperatureUoM of(String name)
     {
         for (TemperatureUoM uom : TemperatureUoM.values()) {
-            if (uom.getDescription().equals(name)) {
+            if (uom.getUnitName().equals(name)) {
                 return uom;
             }
         }
