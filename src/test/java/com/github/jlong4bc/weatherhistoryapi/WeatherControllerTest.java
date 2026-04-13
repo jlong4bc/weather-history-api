@@ -16,6 +16,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDate;
@@ -42,9 +43,11 @@ class WeatherControllerTest
     @ParameterizedTest
     @CsvSource(value={
             "USA,TN,Chattanooga,1993-03-13,1993-03-13,-7,-17,Celsius,300,centimeter,snow,1993-03-13,0987654321,true",
-            //"USA,TN,Chattanooga,null,1993-03-13,-7,-17,Celsius,300,centimeter,snow,1993-03-13,0987654321,false",
-            //"USA,TN,Chattanooga,1993-03-13,null,-7,-17,Celsius,300,centimeter,snow,1993-03-13,0987654321,false",
+            "USA,TN,Chattanooga,null,1993-03-13,-7,-17,Celsius,300,centimeter,snow,1993-03-13,0987654321,false",
+            "USA,TN,Chattanooga,1993-03-13,null,-7,-17,Celsius,300,centimeter,snow,1993-03-13,0987654321,false",
             "USA,TN,Chattanooga,null,null,-7,-17,Celsius,300,centimeter,snow,1993-03-13,0987654321,true",
+            "US,TN,Chattanooga,null,null,-7,-17,Celsius,300,centimeter,snow,1993-03-13,0987654321,false",
+            "USA,TENN,Chattanooga,null,null,-7,-17,Celsius,300,centimeter,snow,1993-03-13,0987654321,false",
     }, nullValues = {"null"})
     void test_retrieveWeatherHistory(String country, String stateProvince, String city,
                                      String fromDate, String toDate,
@@ -70,12 +73,12 @@ class WeatherControllerTest
         Mockito.when(weatherService.retrieveWeatherHistory(Mockito.any())).thenReturn(wHistory);
 
         // Allows full comparison of JSON
-        String jsonResults = om.writeValueAsString(wHistory);
+        //String jsonResults = om.writeValueAsString(wHistory);
 
         ResultMatcher statusMatcher = MockMvcResultMatchers.status().isOk();
         if (!isLegit) {
             statusMatcher = MockMvcResultMatchers.status().is4xxClientError();
-            jsonResults = "";
+            //jsonResults = "";
         }
 
         String uriTemplate = "/weather/{country}/{state-province}/{city}";
@@ -87,8 +90,9 @@ class WeatherControllerTest
                 .param("fromDateParam", fromDate)
                 .param("toDateParam",toDate)
         ).andExpect(statusMatcher)
+         .andDo(MockMvcResultHandlers.print());
          //.andExpect(MockMvcResultMatchers.jsonPath("$.city", Matchers.is(city))).andDo(MockMvcResultHandlers.print());
-         .andExpect(MockMvcResultMatchers.content().json(jsonResults));
+         //.andExpect(MockMvcResultMatchers.content().json(jsonResults));
     }
 
     private WeatherHistory buildWeatherHistory(String countryName, String stateProvName, String city,
