@@ -25,7 +25,7 @@ public class GlobalExceptionHandler
         String msg = ex.getMessage();
         String defaultMsg =
                 switch(ex) {
-                    case CountryNotFoundException _ -> "The county specified is not available.";
+                    case CountryNotFoundException _ -> "The country specified is not available.";
                     case StateProvinceNotFoundException _ -> "The state / province specified is not available";
                     case TokenNotFoundException _ -> "The token was not found.  Please use bearer token.";
                     default -> ex.getMessage();

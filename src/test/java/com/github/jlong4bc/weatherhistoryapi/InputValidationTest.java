@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Slf4j
 class InputValidationTest
 {
+    // Tests country names that are defined by the API.
     @ParameterizedTest
     @CsvSource(value = {
             "USA,true",
@@ -38,6 +39,7 @@ class InputValidationTest
         }
     }
 
+    // Tests state names that are defined by the API.
     @ParameterizedTest
     @CsvSource(value = {
             "Georgia,true",
@@ -60,6 +62,7 @@ class InputValidationTest
         }
     }
 
+    // Tests valid city name composition
     @ParameterizedTest
     @CsvSource(value ={
             "Rancho Santa Margarita,true",
@@ -126,6 +129,7 @@ class InputValidationTest
         }
     }
 
+    // This will test for the presents or absence of a token.
     @ParameterizedTest
     @NullAndEmptySource
     @CsvSource(value = {

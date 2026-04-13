@@ -21,11 +21,12 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 /**
  * This class provides test coverage for the Controller.
- * Because it invokes the framework for injecting the mock service and converting object output into a JSON format, it
- * could be considered an integration test.
+ * Because it invokes the framework for injecting the mock service and converting object output into a JSON format and
+ * includes a module for static validation, it is an integration test.
  */
 @Slf4j
 @ExtendWith(SpringExtension.class)
@@ -38,8 +39,7 @@ class WeatherControllerTest
     @MockitoBean
     private WeatherService weatherService;
 
-
-
+    // Tests possible user inputs to determine how the controller and validation components will behave.
     @ParameterizedTest
     @CsvSource(value={
             "USA,TN,Chattanooga,1993-03-13,1993-03-13,-7,-17,Celsius,300,centimeter,snow,1993-03-13,0987654321,true",
@@ -67,10 +67,10 @@ class WeatherControllerTest
         Temperature temp = buildTemperature(highTemp, lowTemp, tempUom);
         Precipitation precip = buildPrecipitation(precipAmt, precipType, precipUom);
 
-        WeatherHistory wHistory = buildWeatherHistory(country, stateProvince, city,
+        List<WeatherHistory> history = buildWeatherHistory(country, stateProvince, city,
                                                       iso8601Date, temp, precip);
 
-        Mockito.when(weatherService.retrieveWeatherHistory(Mockito.any())).thenReturn(wHistory);
+        Mockito.when(weatherService.retrieveWeatherHistory(Mockito.any())).thenReturn(history);
 
         // Allows full comparison of JSON
         //String jsonResults = om.writeValueAsString(wHistory);
@@ -95,22 +95,25 @@ class WeatherControllerTest
          //.andExpect(MockMvcResultMatchers.content().json(jsonResults));
     }
 
-    private WeatherHistory buildWeatherHistory(String countryName, String stateProvName, String city,
+    // Provides output that is expected from the service method so it can be mocked.
+    private List<WeatherHistory> buildWeatherHistory(String countryName, String stateProvName, String city,
                                                String iso8601Date, Temperature temperature, Precipitation precipitation)
     {
         Country country = Country.of(countryName);
         StateProvince stateProv = StateProvince.of(stateProvName);
         LocalDate date = LocalDate.parse(iso8601Date, DateTimeFormatter.ISO_DATE);
 
-        return new WeatherHistory(country, stateProv, city, date, temperature, precipitation);
+        return List.of(new WeatherHistory(country, stateProv, city, date, temperature, precipitation));
     }
 
+    // Provides temperature for the weather history used in the mocked output
     private Temperature buildTemperature(int high, int low, String tempUomName)
     {
         TemperatureUoM tempUom = TemperatureUoM.of(tempUomName);
         return new Temperature(high, low, tempUom);
     }
 
+    // Provides precipitation for the weather history used in the mocked output
     private Precipitation buildPrecipitation(int precipAmt, String precipName, String precipUomName)
     {
         PrecipitationType precipType = PrecipitationType.of(precipName);

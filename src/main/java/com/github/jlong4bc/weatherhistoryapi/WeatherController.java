@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 /**
  * This class provides endpoint definition and traffic management for Weather History API requests.
  */
-
 @Slf4j
 @AllArgsConstructor
 @RestController
@@ -34,7 +34,7 @@ public class WeatherController
      * @return a JavaScript object identifying requested weather history of the area and time specified
      */
     @GetMapping("/weather/{country}/{state-province}/{city}")
-    public ResponseEntity<WeatherHistory> retrieveWeatherHistory(@PathVariable String country,
+    public ResponseEntity<List<WeatherHistory>> retrieveWeatherHistory(@PathVariable String country,
                                                                  @PathVariable("state-province") String stateProvince,
                                                                  @PathVariable String city,
                                                                  @RequestParam(required = false) String fromDateParam,
@@ -44,8 +44,8 @@ public class WeatherController
         // There may be a more elegant way to retrieve the bearer token, but this is A way.
         String token = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        // Strip out the scheme because only the token is needed.
-        token = token.replace("Bearer ", "");
+        // Strip out the scheme because only the token is needed, but watch for missing tokens.
+        token = token != null ? token.replace("Bearer ", "") : "";
 
         log.info("country: {}, state-province: {}, city: {}, fromDate: {}, toDate: {}, token: {}",
                 country, stateProvince, city, fromDateParam, toDateParam, token);
@@ -53,10 +53,11 @@ public class WeatherController
         RawInputData rawInput = new RawInputData(country, stateProvince, city, fromDateParam, toDateParam, token);
         validateInput(rawInput);
         InputData inputData = convertRawInputDataToInputData(rawInput);
-        WeatherHistory wHistory = service.retrieveWeatherHistory(inputData);
-        return new ResponseEntity<>(wHistory, HttpStatus.OK);
+        List<WeatherHistory> specifiedHistory = service.retrieveWeatherHistory(inputData);
+        return new ResponseEntity<>(specifiedHistory, HttpStatus.OK);
     }
 
+    // Validates the attributes of the raw input
     private void validateInput(RawInputData rawInput)
     {
         // Check for existing token first because it's easy to forget to include in a request.
@@ -82,6 +83,7 @@ public class WeatherController
         InputValidation.validateDateRange(fromDate, toDate);
     }
 
+    // Processes the raw input by converting it into attributes the weather service can use.
     private InputData convertRawInputDataToInputData(RawInputData rawInput)
     {
         Country country = Country.of(rawInput.countryName());
