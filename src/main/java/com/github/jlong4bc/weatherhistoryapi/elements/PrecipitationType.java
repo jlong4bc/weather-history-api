@@ -22,8 +22,15 @@ public enum PrecipitationType
 
     public static PrecipitationType of(String name)
     {
+        try {
+            return PrecipitationType.valueOf(name);
+        } catch (IllegalArgumentException _) {
+            // dismiss exception
+        }
+
+        // Try retrieving based on more lax rules
         for (PrecipitationType precip : PrecipitationType.values()) {
-            if (precip.getTypeName().equals(name)) {
+            if (precip.getTypeName().equalsIgnoreCase(name)) {
                 return precip;
             }
         }

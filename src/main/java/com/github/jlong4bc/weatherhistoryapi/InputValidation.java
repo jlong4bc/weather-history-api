@@ -20,7 +20,7 @@ public final class InputValidation
 
     // Focus on allowed characters like a space, apostrophe and "A" through "z";
     // Allow no more than 25 characters in a city name which allows for most city names
-    private static final Pattern VALID_CITY_PATTERN = Pattern.compile("(\\s|'|-|[A-Z]|[a-z]){0,25}");
+    private static final Pattern VALID_CITY_PATTERN = Pattern.compile("([\\s|'A-z-]){0,25}");
 
     private static final int DAY_RANGE = 5;
 
@@ -53,14 +53,13 @@ public final class InputValidation
 
         // First, check for an abbreviation
         try {
-            Enum.valueOf(StateProvince.class, stateProvinceAbbr);
+            StateProvince.valueOf(stateProvinceAbbr);
         } catch (IllegalArgumentException _) {
             // Second, check for the actual name
             if (StateProvince.of(stateProvinceAbbr) == null) {
                 throw new StateProvinceNotFoundException();
             }
         }
-
     }
 
     /**

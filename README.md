@@ -26,10 +26,15 @@
 ## About The Project
 There are several sets of APIs provided by 
 NOAA. An older version provides current forecast data directly through the APIs. Historical data is kept 
-in CSV files that are named with location identifiers. A newer version NOAA maintains is more user friendly in 
+in CSV files that are named with location identifiers. A newer version NOAA maintains is more user-friendly in 
 some instances, but retrieving basic historical weather data is still complex. 
 The goal of this project is to provide a more user-friendly set of APIs that leverage NOAA’s existing APIs to 
 retrieve basic, location-specific, historical weather data. 
+
+Update: Working on the code facilitated further exploration of NOAA APIs.  An endpoint was discovered to use a zip code 
+to retrieve min. / max. temperatures and precipitation.  This could be used to replace the initial CSV retrieval which 
+could provide better performance.  Nonetheless, the initial project specification called for CSV retrieval which will be
+honored because of time constraints and course assignment guidelines.
 
 
 ### Built With
@@ -51,6 +56,10 @@ SpringBoot 4.0.4
 
 <!-- USAGE EXAMPLES -->
 ## Usage
+In current form, do not perform more than one request per second.  The included geo-coordinate implementation cannot
+be expected to perform beyond that limit (per endpoint provider's guidelines).  See implementing class comments for more
+information.
+
 * Start the application
 ```sh
 ./mvnw spring-boot:run
@@ -59,6 +68,8 @@ SpringBoot 4.0.4
 ```sh
 curl -X 'GET' 'http://localhost:8080/weather/USA/TN/Chattanooga?fromDate=1993-03-01&toDate=1993-03-31' -H 'Authorization: Bearer 0987654321'
 ```
+or  
+http://localhost:8080/
 
 <!-- Running Tests -->
 ### Running Tests
@@ -70,6 +81,7 @@ curl -X 'GET' 'http://localhost:8080/weather/USA/TN/Chattanooga?fromDate=1993-03
 ## Acknowledgments
 
 * [NOAA - National Centers for Environmental Information](https://www.ncei.noaa.gov/)
+* [Nominatim](https://nominatim.org/release-docs/latest/api/Overview/)
 * [OpenStreetMap](https://openstreetmap.org)
 * [Best Readme Template](https://github.com/othneildrew/Best-README-Template/blob/main/BLANK_README.md#about-the-project)
 * [Building an Application with Spring Boot](https://spring.io/guides/gs/spring-boot)
@@ -92,3 +104,6 @@ curl -X 'GET' 'http://localhost:8080/weather/USA/TN/Chattanooga?fromDate=1993-03
 * [SpringBoot Swagger - "Failed to load remote configuration."](https://stackoverflow.com/questions/70906081/springboot-swagger3-failed-to-load-remote-configuration)
 * [Baeldung - Exception Handling for Rest with Spring](https://www.baeldung.com/exception-handling-for-rest-with-spring)
 * [Baeldung - Java Switch Pattern Matching](https://www.baeldung.com/java-switch-pattern-matching)
+* [Baeldung - Spring Boot RestClient](https://www.baeldung.com/spring-boot-restclient)
+* [Baeldung - Jackson Name of Property](https://www.baeldung.com/jackson-name-of-property)
+* [Dan Vega - Spring Boot Rest Client Testing](https://www.youtube.com/watch?v=-ChpDCIjyh0)

@@ -4,7 +4,7 @@ spring:
 
 logging:
   level:
-    root: info
+    root: INFO
 
 springdoc:
   swagger-ui:

@@ -20,12 +20,19 @@ public enum StateProvince
     // Find the enum given its name
     public static StateProvince of(String name)
     {
-        // Forgive the user for improper case
+        try {
+            return StateProvince.valueOf(name);
+        } catch (IllegalArgumentException _) {
+            // dismiss exception
+        }
+
+        // Try retrieving the name of the state / province instead of abbreviation.
         for (StateProvince sp : StateProvince.values()) {
             if (sp.getProvinceName().equalsIgnoreCase(name)) {
                 return sp;
             }
         }
+
         return null;
     }
 }

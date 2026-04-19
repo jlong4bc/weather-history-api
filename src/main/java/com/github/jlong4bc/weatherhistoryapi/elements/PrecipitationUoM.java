@@ -21,8 +21,15 @@ public enum PrecipitationUoM
 
     public static PrecipitationUoM of(String name)
     {
+        try {
+            return PrecipitationUoM.valueOf(name);
+        } catch (IllegalArgumentException _) {
+            // dismiss exception
+        }
+
+        // Try retrieving based on more lax rules
         for (PrecipitationUoM uom : PrecipitationUoM.values()) {
-            if (uom.getUnitName().equals(name)) {
+            if (uom.getUnitName().equalsIgnoreCase(name)) {
                 return uom;
             }
         }

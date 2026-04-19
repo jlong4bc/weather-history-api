@@ -47,8 +47,8 @@ public class WeatherController
         // Strip out the scheme because only the token is needed, but watch for missing tokens.
         token = token != null ? token.replace("Bearer ", "") : "";
 
-        log.info("country: {}, state-province: {}, city: {}, fromDate: {}, toDate: {}, token: {}",
-                country, stateProvince, city, fromDateParam, toDateParam, token);
+        log.info("Request: ... country: {}, state-province: {}, city: {}, fromDate: {}, toDate: {}, token: {}",
+                country, stateProvince, city, fromDateParam, toDateParam, token.substring(0,3)+"...");
 
         RawInputData rawInput = new RawInputData(country, stateProvince, city, fromDateParam, toDateParam, token);
         validateInput(rawInput);
@@ -96,7 +96,13 @@ public class WeatherController
         LocalDate fromDate = StringUtils.isEmpty(fromDateStr) ? null : LocalDate.parse(fromDateStr, DateTimeFormatter.ISO_DATE);
         LocalDate toDate = StringUtils.isEmpty(toDateStr) ? null : LocalDate.parse(toDateStr, DateTimeFormatter.ISO_DATE);
 
-        // Using a separate to improve readability - makes the return easier to read.
+        // When both from & to dates are null, make them yesterday's date.
+        if (fromDate == null && toDate == null) {
+            fromDate = LocalDate.now().minusDays(1);
+            toDate = LocalDate.now().minusDays(1);
+        }
+
+        // Using a separate variable to improve readability - makes the return easier to read.
         String token = rawInput.noaaToken();
 
         return new InputData(country, stateProvince, city, fromDate, toDate, token);

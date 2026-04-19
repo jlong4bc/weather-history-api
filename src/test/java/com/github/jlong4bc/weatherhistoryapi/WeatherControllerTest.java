@@ -1,7 +1,5 @@
 package com.github.jlong4bc.weatherhistoryapi;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.github.jlong4bc.weatherhistoryapi.elements.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -60,9 +58,7 @@ class WeatherControllerTest
         // weather history is defined properly
 
         // Build a return object and convert it to a JSON formatted string
-        ObjectMapper om = new ObjectMapper();
-        // Allow Jackson to parse Java 8 LocalDate by registering module
-        om.registerModule(new JavaTimeModule());
+        //ObjectMapper om = new ObjectMapper();
 
         Temperature temp = buildTemperature(highTemp, lowTemp, tempUom);
         Precipitation precip = buildPrecipitation(precipAmt, precipType, precipUom);

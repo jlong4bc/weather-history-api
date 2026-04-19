@@ -1,7 +1,6 @@
 package com.github.jlong4bc.weatherhistoryapi;
 
 import lombok.Getter;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Represents a country.
@@ -20,11 +19,13 @@ public enum Country
     // Find the country given its name
     public static Country of(String name)
     {
-        if (StringUtils.isEmpty(name)) {
-            return null;
+        try {
+            return Country.valueOf(name);
+        } catch (IllegalArgumentException _) {
+            // dismiss exception
         }
 
-        // Forgive the user for improper case
+        // Try retrieving based on the country name instead of abbreviation.
         for (Country country : Country.values()) {
             if (country.getCountryName().equalsIgnoreCase(name)) {
                 return country;

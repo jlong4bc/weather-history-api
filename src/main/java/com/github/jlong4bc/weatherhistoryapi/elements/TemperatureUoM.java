@@ -19,8 +19,15 @@ public enum TemperatureUoM
 
     public static TemperatureUoM of(String name)
     {
+        try {
+            return TemperatureUoM.valueOf(name);
+        } catch (IllegalArgumentException _) {
+            // dismiss exception
+        }
+
+        // Try retrieving based on more lax rules.
         for (TemperatureUoM uom : TemperatureUoM.values()) {
-            if (uom.getUnitName().equals(name)) {
+            if (uom.getUnitName().equalsIgnoreCase(name)) {
                 return uom;
             }
         }
