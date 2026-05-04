@@ -12,7 +12,8 @@ public enum PrecipitationType
     SNOW("snow"),
     SLEET("sleet"),
     RAIN("rain"),
-    HAIL("hail");
+    HAIL("hail"),
+    UNKNOWN("unknown");
 
     private final String typeName;
 

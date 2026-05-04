@@ -10,6 +10,7 @@ public enum PrecipitationUoM
 {
     METER("meter"),
     CENTIMETER("centimeter"),
+    MILLIMETERS("millimeters"),
     FEET("feet"),
     INCH("inch");
 
@@ -28,7 +29,8 @@ public enum PrecipitationUoM
         }
 
         // Try retrieving based on more lax rules
-        for (PrecipitationUoM uom : PrecipitationUoM.values()) {
+        for (PrecipitationUoM uom : PrecipitationUoM.values())
+        {
             if (uom.getUnitName().equalsIgnoreCase(name)) {
                 return uom;
             }

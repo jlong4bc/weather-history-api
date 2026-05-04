@@ -23,7 +23,8 @@ public class GlobalExceptionHandler
             CountryNotFoundException.class,
             StateProvinceNotFoundException.class,
             TokenNotFoundException.class,
-            NoaaStationNotFoundException.class
+            NoaaStationNotFoundException.class,
+            NoaaWeatherNotFoundException.class
     })
     public Map<String,String> handleNotFoundExceptions(RuntimeException ex)
     {
