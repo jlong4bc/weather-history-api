@@ -121,7 +121,7 @@ public final class InputValidation
             throw new DateRangeException("'From' date must be less than 'To' date.");
         }
 
-        if ((fromDate.plusDays(DAY_RANGE)).isBefore(toDate)) {
+        if ((fromDate.plusDays(DAY_RANGE - 1)).isBefore(toDate)) {
             throw new DateRangeException("No more than " + DAY_RANGE+ " days range is allowed.");
         }
     }

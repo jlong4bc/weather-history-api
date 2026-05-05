@@ -5,6 +5,7 @@ import com.github.jlong4bc.weatherhistoryapi.exception.InternalServerException;
 import com.github.jlong4bc.weatherhistoryapi.exception.NoaaStationNotFoundException;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClient;
@@ -17,6 +18,7 @@ import java.util.function.Predicate;
 /**
  * A class used to find NOAA stations
  */
+@Slf4j
 @Repository
 public class NoaaStationRepository
 {
@@ -35,6 +37,9 @@ public class NoaaStationRepository
         List<Station> stations;
         try {
             stations = callNoaaStationApi(latLongBoundingBox, inData.fromDate(), inData.toDate(), inData.noaaToken());
+
+            stations.forEach(s -> log.info("name: {} id: {}", s.name, s.id));
+
         } catch (HttpServerErrorException ex) {
             throw new ExternalApiException(ex.getMessage());
         } catch (NoaaStationNotFoundException ex) {

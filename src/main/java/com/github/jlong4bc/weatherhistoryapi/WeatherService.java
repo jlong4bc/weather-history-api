@@ -32,8 +32,8 @@ public class WeatherService
 
         for (NoaaWeather noaaWeather : noaaWeatherResults) {
 
-            Temperature temp = new Temperature(noaaWeather.getHighTemp(), noaaWeather.getLowTemp(), TemperatureUoM.CELSIUS);
-            Precipitation precip = new Precipitation(noaaWeather.getPrecipitationAmount(), PrecipitationUoM.CENTIMETER, PrecipitationType.UNKNOWN);
+            Temperature temp = new Temperature(noaaWeather.getHighTemp(), noaaWeather.getLowTemp(), TemperatureUoM.FAHRENHEIT);
+            Precipitation precip = new Precipitation(noaaWeather.getPrecipitationAmount(), PrecipitationUoM.INCH, PrecipitationType.UNKNOWN);
             WeatherHistory wHistory = new WeatherHistory(inputData.country(), inputData.stateProvince(),
                                                          inputData.city(), noaaWeather.getDate(), temp, precip);
             wHistoryList.add(wHistory);

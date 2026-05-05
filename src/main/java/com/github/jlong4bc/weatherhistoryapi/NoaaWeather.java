@@ -15,7 +15,7 @@ import java.time.LocalDate;
 public class NoaaWeather
 {
     private LocalDate date;
-    private int highTemp;
-    private int lowTemp;
-    private int precipitationAmount;
+    private double highTemp;
+    private double lowTemp;
+    private double precipitationAmount;
 }

@@ -16,14 +16,16 @@ import static org.junit.jupiter.api.Assertions.*;
 class NoaaWeatherRepositoryTest
 {
 
-    private final static String stationId = "USW00013882";
+    private static final String CHATTANOOGA_STATION_ID = "USW00013882";
+    private static final String MARIETTA_STATION_ID = "USW00013864";
+    private static final String stationId = MARIETTA_STATION_ID;
     private final NoaaWeatherRepository repo = new NoaaWeatherRepository();
 
     @Test
     void getWeather()
     {
-        LocalDate from = LocalDate.of(2026, 2, 5);
-        LocalDate to = LocalDate.of(2026, 2, 5);
+        LocalDate from = LocalDate.of(2026, 4, 27);
+        LocalDate to = LocalDate.of(2026, 4, 30);
         List<NoaaWeather> weatherResults = repo.getWeather(stationId, from, to);
         assertNotNull(weatherResults, "noaaWeather should not be null");
         assertFalse(weatherResults.isEmpty(), "weatherResults should not be empty");

@@ -1,5 +1,6 @@
 package com.github.jlong4bc.weatherhistoryapi;
 
+import com.github.jlong4bc.weatherhistoryapi.exception.InternalServerException;
 import com.github.jlong4bc.weatherhistoryapi.exception.NoaaWeatherNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
@@ -8,6 +9,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -44,15 +47,30 @@ public class NoaaWeatherRepository
             throw new NoaaWeatherNotFoundException("Could not connect to NOAA weather archive.");
         }
 
-        final String[] HEADERS = {"STATION","DATE","LATITUDE","LONGITUDE","ELEVATION","NAME","PRCP","PRCP_ATTRIBUTES","SNOW","SNOW_ATTRIBUTES","SNWD","SNWD_ATTRIBUTES","TMAX","TMAX_ATTRIBUTES","TMIN","TMIN_ATTRIBUTES","ACMH","ACMH_ATTRIBUTES","ACSH","ACSH_ATTRIBUTES","ADPT","ADPT_ATTRIBUTES","ASLP","ASLP_ATTRIBUTES","ASTP","ASTP_ATTRIBUTES","AWBT","AWBT_ATTRIBUTES","AWND","AWND_ATTRIBUTES","FMTM","FMTM_ATTRIBUTES","FRGB","FRGB_ATTRIBUTES","FRGT","FRGT_ATTRIBUTES","FRTH","FRTH_ATTRIBUTES","GAHT","GAHT_ATTRIBUTES","PGTM","PGTM_ATTRIBUTES","PSUN","PSUN_ATTRIBUTES","RHAV","RHAV_ATTRIBUTES","RHMN","RHMN_ATTRIBUTES","RHMX","RHMX_ATTRIBUTES","TAVG","TAVG_ATTRIBUTES","TOBS","TOBS_ATTRIBUTES","TSUN","TSUN_ATTRIBUTES","WDF1","WDF1_ATTRIBUTES","WDF2","WDF2_ATTRIBUTES","WDF5","WDF5_ATTRIBUTES","WDFG","WDFG_ATTRIBUTES","WDFM","WDFM_ATTRIBUTES","WESD","WESD_ATTRIBUTES","WSF1","WSF1_ATTRIBUTES","WSF2","WSF2_ATTRIBUTES","WSF5","WSF5_ATTRIBUTES","WSFG","WSFG_ATTRIBUTES","WSFM","WSFM_ATTRIBUTES","WT01","WT01_ATTRIBUTES","WT02","WT02_ATTRIBUTES","WT03","WT03_ATTRIBUTES","WT04","WT04_ATTRIBUTES","WT05","WT05_ATTRIBUTES","WT06","WT06_ATTRIBUTES","WT07","WT07_ATTRIBUTES","WT08","WT08_ATTRIBUTES","WT09","WT09_ATTRIBUTES","WT10","WT10_ATTRIBUTES","WT11","WT11_ATTRIBUTES","WT13","WT13_ATTRIBUTES","WT14","WT14_ATTRIBUTES","WT15","WT15_ATTRIBUTES","WT16","WT16_ATTRIBUTES","WT17","WT17_ATTRIBUTES","WT18","WT18_ATTRIBUTES","WT19","WT19_ATTRIBUTES","WT21","WT21_ATTRIBUTES","WT22","WT22_ATTRIBUTES","WV03","WV03_ATTRIBUTES"};
-
         List<NoaaWeather> results = new ArrayList<>();
 
-        try (Reader reader = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
+        final String[] HEADERS;
+
+        BufferedReader bReader;
+        try {
+            InputStream iStream = con.getInputStream();
+            int available = iStream.available();
+            InputStreamReader isReader = new InputStreamReader(iStream);
+            bReader = new BufferedReader(isReader);
+            // set the number of characters that can be read from the stream to reserve the ability to reset to the beginning of the stream.
+            bReader.mark(available);
+            HEADERS = getHeader(bReader);
+        } catch(IOException ioe) {
+            throw new InternalServerException("Could not read weather.");
+        }
+
+        // Read from the stream again.
+        try {
+            bReader.reset();
             CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
                     .setHeader(HEADERS)
                     .setSkipHeaderRecord(true).get();
-            Iterable<CSVRecord> records = csvFormat.parse(reader);
+            Iterable<CSVRecord> records = csvFormat.parse(bReader);
             for (CSVRecord record : records) {
                 String dateStr = record.get("DATE");
                 LocalDate localDate = LocalDate.parse(dateStr, DateTimeFormatter.ISO_DATE);
@@ -63,29 +81,87 @@ public class NoaaWeatherRepository
                     String highTempStr = record.get("TMAX");
                     String lowTempStr = record.get("TMIN");
                     String precipStr = record.get("PRCP");
+                    String rain = record.isMapped("WT16") ? record.get("WT16") : "not-mapped";
+                    String snow = record.isMapped("WT18") ? record.get("WT18") : "not-mapped";
+                    String hail = record.isMapped("WT05") ? record.get("WT05") : "not-mapped";
+                    String sleet = record.isMapped("WT04") ? record.get("WT04") : "not-mapped";
+                    log.info("rain: {}, snow: {}, hail: {}, sleet: {}", rain, snow, hail, sleet);
+                    record.toMap().forEach((key,value) -> log.info("{} -> {}", key, value));
 
                     NoaaWeather noaaWeather = new NoaaWeather();
                     noaaWeather.setDate(localDate);
-                    noaaWeather.setHighTemp(getIntFromStr(highTempStr));
-                    noaaWeather.setLowTemp(getIntFromStr(lowTempStr));
-                    noaaWeather.setPrecipitationAmount(getIntFromStr(precipStr));
+                    noaaWeather.setHighTemp(getTemperatureFromStrTemperature(highTempStr));
+                    noaaWeather.setLowTemp(getTemperatureFromStrTemperature(lowTempStr));
+                    noaaWeather.setPrecipitationAmount(getPrecipFromStrPrecip(precipStr));
                     results.add(noaaWeather);
                 }
             }
         } catch (IOException ex) {
             log.error("retrieving the CSV", ex);
+        } finally {
+            // Guarantee to close the reader
+            try {
+                bReader.close();
+            } catch (IOException ex) {
+                log.error("error closing the reader", ex);
+            }
         }
 
-        // call a private method to turn the bytes[] into an array of CsvBeans
 
         return results;
     }
 
-    private static int getIntFromStr(String str)
+    // Retrieve the Headers
+    private String[] getHeader(Reader reader)
     {
-        int result = 0;
+        // Read headers because they may vary according to the data collected
+        String[] HEADERS;
+
+        // The header data retrieved may vary, which means the headers will vary.
+        // We always hope the high & low temp along with precip will always be available.
         try {
-            result = Integer.parseInt(StringUtils.trim(str));
+            LineNumberReader lReader = new LineNumberReader(reader);
+            String headerLine = lReader.readLine();
+            // Remove all the quotes to enable proper split into String[]
+            headerLine = headerLine.replace("\"", "");
+            HEADERS = headerLine.split(",");
+        } catch (IOException e) {
+            throw new InternalServerException("Could not read weather header");
+        }
+        return HEADERS;
+    }
+
+    // Pre: Unit of measure : Celsius
+    // Post: Unit of measure : Fahrenheit
+    private static double getTemperatureFromStrTemperature(String str)
+    {
+        // NOAA temperature defaults to Celsius and include tenths without the decimal
+        // Right now, have it return as Fahrenheit.  This can be modified later to be passed in as a parameter.
+        double result = 0;
+        try {
+            int tempToTenths = Integer.parseInt(StringUtils.trim(str));
+            double celsiusTemp = (double)tempToTenths/10;
+            double fahrenheitTemp = (celsiusTemp * 9.0)/5.0 + 32;
+            result = BigDecimal.valueOf(fahrenheitTemp).setScale(3, RoundingMode.HALF_UP).doubleValue();
+        } catch(NumberFormatException ex) {
+            // Do nothing
+        }
+        return result;
+    }
+
+    // Pre: Unit of measure : mm
+    // Post: Unit of measure : in
+    private static double getPrecipFromStrPrecip(String str)
+    {
+        // I am not sure exactly how to calculate this, but the documentation says,
+        // "mm or inches as per user preference, inches to hundredths on Daily Form pdf file".
+        // NOAA precp defaults to millimeters and include hundredths without the decimal
+        // Right now, have it return as inches.  This can be modified later to be passed in as a parameter.
+        double result = 0;
+        try {
+            int precipMMToHundredths = Integer.parseInt(StringUtils.trim(str));
+            double precipIN = (precipMMToHundredths/254.0);
+            result = BigDecimal.valueOf(precipIN).setScale(3, RoundingMode.HALF_UP).doubleValue();
         } catch(NumberFormatException ex) {
             // Do nothing
         }

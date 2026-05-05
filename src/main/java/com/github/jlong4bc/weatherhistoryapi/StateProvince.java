@@ -8,6 +8,7 @@ import lombok.Getter;
 @Getter
 public enum StateProvince
 {
+    AK("Alaska"),
     GA("Georgia"),
     TN("Tennessee");
 
