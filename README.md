@@ -18,6 +18,7 @@
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
+    <li><a href="#known-bugs">Known Bugs</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
@@ -82,6 +83,13 @@ http://localhost:8080/
 ```sh
 ./mvnw test -Dtest=InputValidationTest
 ```
+
+<!-- BUGS -->
+## Known Bugs
+Precipitation retrieval coverage is not complete.  NOAA holds precipitation in two places in the CSV.  
+This API currently only retrieves it in one of those places.  
+E.g. Chattanooga, TN 1993-03-14 snow is 19".  This is correct and the NOAA UI retrieves it correctly.  This API does not.  
+For those who are not aware, this was a blizzard that hit the eastern half of the USA in late winter of 1993.  
 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments

@@ -48,40 +48,38 @@ public class NoaaWeatherRepository
         }
 
         List<NoaaWeather> results = new ArrayList<>();
-        BufferedReader bReader = getBufferedReader(con);
+        BufferedReader bReader = getMarkedBufferedReader(con);
+
+        final String[] HEADERS = getHeader(bReader);
 
         // Read from the stream again.
         try (bReader) {
-            try {
-                final String[] HEADERS = getHeader(bReader);
-                bReader.reset();
-                CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                        .setHeader(HEADERS)
-                        .setSkipHeaderRecord(true).get();
-                Iterable<CSVRecord> records = csvFormat.parse(bReader);
-                for (CSVRecord record : records) {
-                    String dateStr = record.get("DATE");
-                    LocalDate localDate = LocalDate.parse(dateStr, DateTimeFormatter.ISO_DATE);
-                    if ((localDate.isAfter(fromDate) && localDate.isBefore(toDate))
-                            || localDate.isEqual(fromDate) || localDate.isEqual(toDate)) {
-                        log.info("----> {}", record.stream().toList());
+            bReader.reset();
+            CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                    .setHeader(HEADERS)
+                    .setSkipHeaderRecord(true).get();
+            Iterable<CSVRecord> records = csvFormat.parse(bReader);
+            for (CSVRecord record : records) {
+                String dateStr = record.get("DATE");
+                LocalDate localDate = LocalDate.parse(dateStr, DateTimeFormatter.ISO_DATE);
+                if ((localDate.isAfter(fromDate) && localDate.isBefore(toDate))
+                        || localDate.isEqual(fromDate) || localDate.isEqual(toDate)) {
+                    log.info("----> {}", record.stream().toList());
 
-                        NoaaWeather noaaWeather = getNoaaWeather(record, localDate);
-                        results.add(noaaWeather);
-                    }
+                    NoaaWeather noaaWeather = getNoaaWeather(record, localDate);
+                    results.add(noaaWeather);
                 }
-            } catch (IOException ex) {
-                log.error("retrieving the CSV", ex);
-                throw new InternalServerException("There was an issue organizing the weather data.");
             }
         } catch (IOException ex) {
-            log.error("error accessing the reader", ex);
+            log.error("retrieving the CSV", ex);
+            throw new InternalServerException("There was an issue organizing the weather data.");
         }
 
         return results;
     }
 
-    private static BufferedReader getBufferedReader(URLConnection con)
+    // return a bufferedReader that has been marked for later reset.
+    private static BufferedReader getMarkedBufferedReader(URLConnection con)
     {
         BufferedReader bReader;
         try {
@@ -99,6 +97,7 @@ public class NoaaWeatherRepository
 
     private static NoaaWeather getNoaaWeather(CSVRecord record, LocalDate localDate)
     {
+        // These names are based on the HEADERS that were retrieved
         String highTempStr = record.isMapped("TMAX") ? record.get("TMAX") : "not-mapped";
         String lowTempStr = record.isMapped("TMIN") ? record.get("TMIN") : "not-mapped";
         String precipStr = record.isMapped("PRCP") ? record.get("PRCP") : "not-mapped";
@@ -107,6 +106,8 @@ public class NoaaWeatherRepository
         String hail = record.isMapped("WT05") ? record.get("WT05") : "not-mapped";
         String sleet = record.isMapped("WT04") ? record.get("WT04") : "not-mapped";
         log.info("rain: {}, snow: {}, hail: {}, sleet: {}", rain, snow, hail, sleet);
+
+        // So far in my tests, the precipitation type has been empty, otherwise it could be added to the output.
 
         NoaaWeather noaaWeather = new NoaaWeather();
         noaaWeather.setDate(localDate);
