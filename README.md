@@ -74,7 +74,10 @@ http://localhost:8080/
 <!-- Running Tests -->
 ### Running Tests
 ```sh
-./mvnw test -Dtest=ControllerTest#test_retrieveWeatherHistory
+./mvnw test -Dtest=ControllerTest
+```
+```sh
+./mvnw test -Dtest=InputValidationTest
 ```
 
 <!-- ACKNOWLEDGMENTS -->

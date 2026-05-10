@@ -50,7 +50,8 @@ class InputValidationTest
             ",false",
             "GA,true",
             "TN,true",
-            "CA,false"
+            "CA,false",
+            "AK,true"
     })
     void test_validateStateProvince(String stateProvinceName, boolean isLegit)
     {

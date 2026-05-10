@@ -35,11 +35,11 @@ public class WeatherController
      */
     @GetMapping("/weather/{country}/{state-province}/{city}")
     public ResponseEntity<List<WeatherHistory>> retrieveWeatherHistory(@PathVariable String country,
-                                                                 @PathVariable("state-province") String stateProvince,
-                                                                 @PathVariable String city,
-                                                                 @RequestParam(required = false) String fromDateParam,
-                                                                 @RequestParam(required = false) String toDateParam,
-                                                                 HttpServletRequest request)
+                                                                       @PathVariable("state-province") String stateProvince,
+                                                                       @PathVariable String city,
+                                                                       @RequestParam(required = false) String fromDateParam,
+                                                                       @RequestParam(required = false) String toDateParam,
+                                                                       HttpServletRequest request)
     {
         // There may be a more elegant way to retrieve the bearer token, but this is A way.
         String token = request.getHeader(HttpHeaders.AUTHORIZATION);

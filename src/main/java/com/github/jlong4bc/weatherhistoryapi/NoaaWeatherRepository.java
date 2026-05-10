@@ -48,9 +48,41 @@ public class NoaaWeatherRepository
         }
 
         List<NoaaWeather> results = new ArrayList<>();
+        BufferedReader bReader = getBufferedReader(con);
 
-        final String[] HEADERS;
+        // Read from the stream again.
+        try (bReader) {
+            try {
+                final String[] HEADERS = getHeader(bReader);
+                bReader.reset();
+                CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                        .setHeader(HEADERS)
+                        .setSkipHeaderRecord(true).get();
+                Iterable<CSVRecord> records = csvFormat.parse(bReader);
+                for (CSVRecord record : records) {
+                    String dateStr = record.get("DATE");
+                    LocalDate localDate = LocalDate.parse(dateStr, DateTimeFormatter.ISO_DATE);
+                    if ((localDate.isAfter(fromDate) && localDate.isBefore(toDate))
+                            || localDate.isEqual(fromDate) || localDate.isEqual(toDate)) {
+                        log.info("----> {}", record.stream().toList());
 
+                        NoaaWeather noaaWeather = getNoaaWeather(record, localDate);
+                        results.add(noaaWeather);
+                    }
+                }
+            } catch (IOException ex) {
+                log.error("retrieving the CSV", ex);
+                throw new InternalServerException("There was an issue organizing the weather data.");
+            }
+        } catch (IOException ex) {
+            log.error("error accessing the reader", ex);
+        }
+
+        return results;
+    }
+
+    private static BufferedReader getBufferedReader(URLConnection con)
+    {
         BufferedReader bReader;
         try {
             InputStream iStream = con.getInputStream();
@@ -59,56 +91,29 @@ public class NoaaWeatherRepository
             bReader = new BufferedReader(isReader);
             // set the number of characters that can be read from the stream to reserve the ability to reset to the beginning of the stream.
             bReader.mark(available);
-            HEADERS = getHeader(bReader);
         } catch(IOException ioe) {
             throw new InternalServerException("Could not read weather.");
         }
+        return bReader;
+    }
 
-        // Read from the stream again.
-        try {
-            bReader.reset();
-            CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                    .setHeader(HEADERS)
-                    .setSkipHeaderRecord(true).get();
-            Iterable<CSVRecord> records = csvFormat.parse(bReader);
-            for (CSVRecord record : records) {
-                String dateStr = record.get("DATE");
-                LocalDate localDate = LocalDate.parse(dateStr, DateTimeFormatter.ISO_DATE);
-                if ((localDate.isAfter(fromDate) && localDate.isBefore(toDate))
-                    || localDate.isEqual(fromDate) || localDate.isEqual(toDate)) {
-                    log.info("----> {}", record.stream().toList());
+    private static NoaaWeather getNoaaWeather(CSVRecord record, LocalDate localDate)
+    {
+        String highTempStr = record.isMapped("TMAX") ? record.get("TMAX") : "not-mapped";
+        String lowTempStr = record.isMapped("TMIN") ? record.get("TMIN") : "not-mapped";
+        String precipStr = record.isMapped("PRCP") ? record.get("PRCP") : "not-mapped";
+        String rain = record.isMapped("WT16") ? record.get("WT16") : "not-mapped";
+        String snow = record.isMapped("WT18") ? record.get("WT18") : "not-mapped";
+        String hail = record.isMapped("WT05") ? record.get("WT05") : "not-mapped";
+        String sleet = record.isMapped("WT04") ? record.get("WT04") : "not-mapped";
+        log.info("rain: {}, snow: {}, hail: {}, sleet: {}", rain, snow, hail, sleet);
 
-                    String highTempStr = record.get("TMAX");
-                    String lowTempStr = record.get("TMIN");
-                    String precipStr = record.get("PRCP");
-                    String rain = record.isMapped("WT16") ? record.get("WT16") : "not-mapped";
-                    String snow = record.isMapped("WT18") ? record.get("WT18") : "not-mapped";
-                    String hail = record.isMapped("WT05") ? record.get("WT05") : "not-mapped";
-                    String sleet = record.isMapped("WT04") ? record.get("WT04") : "not-mapped";
-                    log.info("rain: {}, snow: {}, hail: {}, sleet: {}", rain, snow, hail, sleet);
-                    record.toMap().forEach((key,value) -> log.info("{} -> {}", key, value));
-
-                    NoaaWeather noaaWeather = new NoaaWeather();
-                    noaaWeather.setDate(localDate);
-                    noaaWeather.setHighTemp(getTemperatureFromStrTemperature(highTempStr));
-                    noaaWeather.setLowTemp(getTemperatureFromStrTemperature(lowTempStr));
-                    noaaWeather.setPrecipitationAmount(getPrecipFromStrPrecip(precipStr));
-                    results.add(noaaWeather);
-                }
-            }
-        } catch (IOException ex) {
-            log.error("retrieving the CSV", ex);
-        } finally {
-            // Guarantee to close the reader
-            try {
-                bReader.close();
-            } catch (IOException ex) {
-                log.error("error closing the reader", ex);
-            }
-        }
-
-
-        return results;
+        NoaaWeather noaaWeather = new NoaaWeather();
+        noaaWeather.setDate(localDate);
+        noaaWeather.setHighTemp(getConvertedTemperature(highTempStr));
+        noaaWeather.setLowTemp(getConvertedTemperature(lowTempStr));
+        noaaWeather.setPrecipitationAmount(getConvertedPrecipitation(precipStr));
+        return noaaWeather;
     }
 
     // Retrieve the Headers
@@ -133,7 +138,7 @@ public class NoaaWeatherRepository
 
     // Pre: Unit of measure : Celsius
     // Post: Unit of measure : Fahrenheit
-    private static double getTemperatureFromStrTemperature(String str)
+    private static double getConvertedTemperature(String str)
     {
         // NOAA temperature defaults to Celsius and include tenths without the decimal
         // Right now, have it return as Fahrenheit.  This can be modified later to be passed in as a parameter.
@@ -151,10 +156,10 @@ public class NoaaWeatherRepository
 
     // Pre: Unit of measure : mm
     // Post: Unit of measure : in
-    private static double getPrecipFromStrPrecip(String str)
+    private static double getConvertedPrecipitation(String str)
     {
-        // I am not sure exactly how to calculate this, but the documentation says,
-        // "mm or inches as per user preference, inches to hundredths on Daily Form pdf file".
+        // The documentation says,
+        // "mm or inches as per user preference, inches to hundredths on Daily Form PDF file".
         // NOAA precp defaults to millimeters and include hundredths without the decimal
         // Right now, have it return as inches.  This can be modified later to be passed in as a parameter.
         double result = 0;

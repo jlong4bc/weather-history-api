@@ -18,9 +18,9 @@ public final class InputValidation
         // Private to prevent creation because all methods are static.
     }
 
-    // Focus on allowed characters like a space, apostrophe and "A" through "z";
+    // Focus on allowed characters like a space, apostrophe and alphabetic letters;
     // Allow no more than 25 characters in a city name which allows for most city names
-    private static final Pattern VALID_CITY_PATTERN = Pattern.compile("([\\s|'A-z-]){0,25}");
+    private static final Pattern VALID_CITY_PATTERN = Pattern.compile("([\\s|'A-Za-z-]){0,25}");
 
     private static final int DAY_RANGE = 5;
 
