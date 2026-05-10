@@ -36,6 +36,9 @@ to retrieve min. / max. temperatures and precipitation.  This could be used to r
 could provide better performance.  Nonetheless, the initial project specification called for CSV retrieval which will be
 honored because of time constraints and course assignment guidelines.
 
+Verification:  
+Accuracy of this API output can be gaged by NOAA's UI for historical weather at https://www.ncei.noaa.gov/access/past-weather/
+
 
 ### Built With
 Java version 25  
